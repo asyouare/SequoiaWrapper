@@ -1,5 +1,50 @@
 >### **结构说明**
 ---
+- #### 先来看一个使用示例
+```java
+//在使用实体做为SequoiaWrapper参数时，所有字段成员必须使用包装器类型，且不可以初始化。
+
+//查询实体
+UserModel queryModel = new UserModel();
+queryModel.setName("abc");
+
+//更新实体
+UserModel valueModel = new UserModel();
+valueModel.setName("steven")
+
+//设置SequoiaWrapper是否自动创建集合空间与集合，这里设置为true。
+SequoiaAutoCreate.setAll(true);
+
+//设置数据库地址。
+List<String> addrList = new ArrayList<String>();
+addrList.add("localhost:11910");
+
+//装入配置管理器，配置将全局共享。
+ConfigManager.addConfig(
+        new Config("user","cs", addrList),
+        new Config("order","cs", addrList));
+}
+
+//获取适配器对象，推荐使用单例模式。
+SequoiaAdapter adapter = SequoiaAdapter.create("adapterId");
+
+//分页查询，查询第一页，每页20条记录。
+Page<UserModel> page = adapter.find(queryModel).page(0,20);
+
+//查询一条记录。
+UserModel user = adapter.find(queryModel).findOne();
+
+//插入一条记录。
+adapter.insert().insertOne(valueModel);
+
+//更新多条记录。
+adapter.update().updateMany(queryModel, valueModel);
+
+//删除一条记录。
+adapter.delete().deleteOne(queryModel);
+```
+所有操作器的CRUD操作默认是不支持事务的，如果需要使ProxyFacotry创建的对象支持自动事务处理需要在执行方法后加"T"。见下文自动事务处理。
+
 - #### **服务器对象**
 ```text
 SequoiaAdapter  ：数据库适配器，一个适配器操作一个数据库服务器对象。
@@ -121,6 +166,11 @@ ProxyFactory提供业务层自动事务处理，使用ProxyFactory创建Service�
 这里显式使用静态声明，避免其它MVC框架冲突。如jfinal会为每个请求重新实例化Controller层，导致性能上的开销和浪费。
 ```java
 static ServiceA server = ProxyFactory.create(ServiceA.class, SequoiaAdapter.create("adapter_data"));
+
+//使用ProxyFacotry创建的对象执行事务时，要调用操作器T后缀的CRUD方法。如：
+adapter.insert().insertOneT(valueModel);
+adapter.updaate().updateOneT(queryModel,valueModel);
+adapter.delete().deleteOneT(queryModel);
 ```
 
 - AtomicTransaction
@@ -142,12 +192,14 @@ IAtomicDelegate atomicDelegate = new IAtomicDelegate() {
 //测试执行多次
 for(int i=0; i<10; i++)
     AtomicTransaction.execute(AdapterFactory.getAdapter(), atomicDelegate);
+
+//使用AtomicTransaction执行事务时，所有操作器CRUD操作不需要加"T"。
 ```
 事务规则说明：
 1. ProxyFactory和AtomicTransaction的事务都是基于线程识别的，在同一线程中共享同一事务。
 2. ProxyFactory和AtomicTransaction在同一个线程内不能嵌套执行，否则会导致线程安全问题，使事务失效或抛出异常。
 3. ProxyFactory创建的对象应该保证线程安全问题，不要在业务类中存放非线程安全的变量或代码。
 4. ProxyFactory创建的对象中包含了另一个ProxyFactory创建的对象，也应该声明为静态static，无论包含多少ProxyFactory的对象，它们都在同一个事务中。
-
+5. ProxyFactory创建的对象中调用无T后缀的操作并不冲突，该操作视为独立操作，与当前事务无关，但如果对同一数据操作会有脏读，需要注意。
 
 > 正在进行完善，如有其它问题请多多指正！
