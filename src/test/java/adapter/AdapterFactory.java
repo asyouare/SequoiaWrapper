@@ -1,7 +1,6 @@
 package adapter;
 
 import org.asyou.sequoia.base.Config;
-import org.asyou.sequoia.base.ConfigManager;
 import org.asyou.sequoia.dao.SequoiaAdapter;
 import org.asyou.sequoia.dao.SequoiaAutoCreate;
 import org.asyou.sequoia.exception.SequoiaAdapterException;

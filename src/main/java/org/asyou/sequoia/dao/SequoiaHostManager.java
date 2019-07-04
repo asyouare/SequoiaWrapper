@@ -1,8 +1,7 @@
 package org.asyou.sequoia.dao;
 
-import org.apache.commons.lang3.StringUtils;
 import org.asyou.sequoia.base.Config;
-import org.asyou.sequoia.base.ConfigManager;
+import org.asyou.sequoia.common.Assertions;
 import org.asyou.sequoia.exception.SequoiaAdapterException;
 
 import java.util.HashMap;
@@ -30,12 +29,8 @@ public class SequoiaHostManager {
         if (configs.length > 0) {
             Map<String, SequoiaHost> cmap = new HashMap();
             for (Config config : configs) {
-                if (config == null) {
-                    throw new IllegalArgumentException(String.format("SequoiaConfig is null"));
-                }
-                if (StringUtils.isBlank(config.getAdapterId())) {
-                    throw new IllegalArgumentException(String.format("SequoiaConfig adapter ID is null"));
-                }
+                Assertions.notNull("SequoiaConfig", config);
+                Assertions.notBlank("SequoiaConfig adapter ID", config.getAdapterId());
                 if (map.containsKey(config.getAdapterId())) {
                     throw new IllegalArgumentException(String.format("SequoiaConfig adapter ID'%s' is already used", config.getAdapterId()));
                 }
@@ -69,7 +64,4 @@ public class SequoiaHostManager {
         return map.containsKey(adapterId);
     }
 
-    public static String getMapString(){
-        return ConfigManager.getMapString();
-    }
 }
