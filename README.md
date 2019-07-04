@@ -49,9 +49,9 @@ ConfigOptions configOptions = ....
 DatasourceOptions datasourceOptions = ....
 Config logConfig = new Config("adapter_log","database_name","user_name","password",addressList,configOptions,datasourceOptions);
 ```
-装入构造器对象，多个数据库服务器可以配置多个Config，然后使用ConfigManager装入：  
+将配置装入Sequoia管理器，多个数据库服务器可以配置多个Config：  
 ```java
-ConfigManager.addConfig(
+SequoiaHostManager.addHost(
     dataConfig,
     logConfig
 );
