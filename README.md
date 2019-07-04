@@ -62,12 +62,14 @@ SequoiaHostManager.addHost(
 - #### **如何连接数据库**
 数据库的连接操作已经集成在操作器内部，你可以忽略数据库连接的任何操作，而只关心操作本身：
 ```java
-SequoiaAdapter.create("adapter_data").find()
-SequoiaAdapter.create("adapter_data").insert()
-SequoiaAdapter.create("adapter_data").update()
-SequoiaAdapter.create("adapter_data").delete()
-SequoiaAdapter.create("adapter_data").count()
-SequoiaAdapter.create("adapter_data").aggregate()
+SequoiaAdapter adapter = SequoiaAdapter.create("adapter_data")
+
+adapter.find()
+adapter.insert()
+adapter.update()
+adapter.delete()
+adapter.count()
+adapter.aggregate()
 ```
 为了满足某些特殊的需求，我们也提供了原生接口的获取：
 ```java
